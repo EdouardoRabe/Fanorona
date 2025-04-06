@@ -18,7 +18,14 @@ class Minimax:
                 # Simuler le placement de l'IA
                 self.table_de_jeu.plateau[position] = Pion(couleur_ia)
                 # Appeler Minimax pour évaluer ce placement
-                score = self.minimax(False, 0, couleur_ia, couleur_joueur)
+                score = self.minimax(
+                    maximiser=False,
+                    profondeur=0,
+                    couleur_ia=couleur_ia,
+                    couleur_joueur=couleur_joueur,
+                    phase="placement",
+                    pions_restants_joueur=len(self.table_de_jeu.plateau) - len(self.table_de_jeu.plateau.values())
+                )
                 # Annuler le placement (backtracking)
                 self.table_de_jeu.plateau[position] = None
 
@@ -34,50 +41,80 @@ class Minimax:
         print(f"Meilleur coup choisi : {meilleur_coup}, Meilleur score : {meilleur_score}")
         return meilleur_coup
 
-    def minimax(self, maximiser, profondeur, couleur_ia, couleur_joueur):
+    def minimax(self, maximiser, profondeur, couleur_ia, couleur_joueur, phase, pions_restants_joueur):
         """
-        Algorithme Minimax pour la phase de placement.
+        Algorithme Minimax pour les phases de placement et de déplacement.
         maximiser : True si c'est au tour de l'IA, False si c'est au tour de l'utilisateur.
         profondeur : Nombre de tours simulés.
+        phase : "placement" ou "deplacement".
+        pions_restants_joueur : Nombre de pions restants à placer pour le joueur.
         """
-        # Vérifier si l'IA a gagné
+        # Limiter la profondeur en fonction du nombre de pions restants à placer
+        if phase == "placement":
+            if pions_restants_joueur == 3:
+                profondeur_max = 5
+            elif pions_restants_joueur == 2:
+                profondeur_max = 3
+            elif pions_restants_joueur == 1:
+                profondeur_max = 1
+            else:
+                profondeur_max = 0  # Plus de placements possibles
+        else:
+            profondeur_max = 3  # Par défaut pour la phase de déplacement
+
+        # Vérifier si une victoire est atteinte
         if self.table_de_jeu.verifier_victoire(couleur_ia):
             return 10  # Score élevé pour une victoire de l'IA
-        # Vérifier si l'utilisateur a gagné
         if self.table_de_jeu.verifier_victoire(couleur_joueur):
             return -10  # Score bas pour une victoire de l'utilisateur
 
         # Si la profondeur maximale est atteinte, évaluer l'état du plateau
-        if profondeur == 3:
+        if profondeur >= profondeur_max:
             return self.evaluation_plateau(couleur_ia, couleur_joueur)
 
         if maximiser:
             # Tour de l'IA (maximiser le score)
             meilleur_score = float("-inf")
-            for position in self.table_de_jeu.plateau:
-                if self.table_de_jeu.est_position_valide(position):  # Vérifier si la position est libre
+            for position_depart, pion in self.table_de_jeu.plateau.items():
+                if phase == "placement" and self.table_de_jeu.est_position_valide(position_depart):
                     # Simuler le placement de l'IA
-                    self.table_de_jeu.plateau[position] = Pion(couleur_ia)
-                    # Appeler Minimax pour le tour suivant
-                    score = self.minimax(False, profondeur + 1, couleur_ia, couleur_joueur)
-                    # Annuler le placement (backtracking)
-                    self.table_de_jeu.plateau[position] = None
-                    # Mettre à jour le meilleur score
+                    self.table_de_jeu.plateau[position_depart] = Pion(couleur_ia)
+                    score = self.minimax(False, profondeur + 1, couleur_ia, couleur_joueur, phase, pions_restants_joueur)
+                    self.table_de_jeu.plateau[position_depart] = None
                     meilleur_score = max(meilleur_score, score)
+                elif phase == "deplacement" and pion is not None and pion.couleur == couleur_ia:
+                    mouvements_legaux = self.table_de_jeu.calculer_mouvements_legaux(position_depart)
+                    for position_arrivee in mouvements_legaux:
+                        # Simuler le déplacement
+                        pion_original = self.table_de_jeu.plateau[position_arrivee]
+                        self.table_de_jeu.plateau[position_arrivee] = pion
+                        self.table_de_jeu.plateau[position_depart] = None
+                        score = self.minimax(False, profondeur + 1, couleur_ia, couleur_joueur, phase, pions_restants_joueur)
+                        self.table_de_jeu.plateau[position_depart] = pion
+                        self.table_de_jeu.plateau[position_arrivee] = pion_original
+                        meilleur_score = max(meilleur_score, score)
             return meilleur_score
         else:
             # Tour de l'utilisateur (minimiser le score)
             meilleur_score = float("inf")
-            for position in self.table_de_jeu.plateau:
-                if self.table_de_jeu.est_position_valide(position):  # Vérifier si la position est libre
+            for position_depart, pion in self.table_de_jeu.plateau.items():
+                if phase == "placement" and self.table_de_jeu.est_position_valide(position_depart):
                     # Simuler le placement de l'utilisateur
-                    self.table_de_jeu.plateau[position] = Pion(couleur_joueur)
-                    # Appeler Minimax pour le tour suivant
-                    score = self.minimax(True, profondeur + 1, couleur_ia, couleur_joueur)
-                    # Annuler le placement (backtracking)
-                    self.table_de_jeu.plateau[position] = None
-                    # Mettre à jour le meilleur score
+                    self.table_de_jeu.plateau[position_depart] = Pion(couleur_joueur)
+                    score = self.minimax(True, profondeur + 1, couleur_ia, couleur_joueur, phase, pions_restants_joueur - 1)
+                    self.table_de_jeu.plateau[position_depart] = None
                     meilleur_score = min(meilleur_score, score)
+                elif phase == "deplacement" and pion is not None and pion.couleur == couleur_joueur:
+                    mouvements_legaux = self.table_de_jeu.calculer_mouvements_legaux(position_depart)
+                    for position_arrivee in mouvements_legaux:
+                        # Simuler le déplacement
+                        pion_original = self.table_de_jeu.plateau[position_arrivee]
+                        self.table_de_jeu.plateau[position_arrivee] = pion
+                        self.table_de_jeu.plateau[position_depart] = None
+                        score = self.minimax(True, profondeur + 1, couleur_ia, couleur_joueur, phase, pions_restants_joueur)
+                        self.table_de_jeu.plateau[position_depart] = pion
+                        self.table_de_jeu.plateau[position_arrivee] = pion_original
+                        meilleur_score = min(meilleur_score, score)
             return meilleur_score
 
     def evaluation_plateau(self, couleur_ia, couleur_joueur):
