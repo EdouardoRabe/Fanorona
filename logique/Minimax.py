@@ -40,6 +40,45 @@ class Minimax:
         # Log pour le débogage
         print(f"Meilleur coup choisi : {meilleur_coup}, Meilleur score : {meilleur_score}")
         return meilleur_coup
+    
+    def meilleur_coup_deplacement(self, couleur_ia, couleur_joueur):
+        """
+        Calcule le meilleur déplacement pour la phase de déplacement.
+        Retourne une paire (position_depart, position_arrivee).
+        """
+        meilleur_score = float("-inf")
+        meilleur_deplacement = None
+
+        # Parcourir toutes les positions du plateau
+        for position_depart, pion in self.table_de_jeu.plateau.items():
+            if pion is not None and pion.couleur == couleur_ia:  # Vérifier si le pion appartient à l'IA
+                mouvements_legaux = self.table_de_jeu.calculer_mouvements_legaux(position_depart)
+                for position_arrivee in mouvements_legaux:
+                    # Simuler le déplacement
+                    pion_original = self.table_de_jeu.plateau[position_arrivee]
+                    self.table_de_jeu.plateau[position_arrivee] = pion
+                    self.table_de_jeu.plateau[position_depart] = None
+
+                    # Appeler Minimax pour évaluer ce déplacement
+                    score = self.minimax(
+                        maximiser=False,
+                        profondeur=0,
+                        couleur_ia=couleur_ia,
+                        couleur_joueur=couleur_joueur,
+                        phase="deplacement",
+                        pions_restants_joueur=0  # Pas de pions restants à placer en phase de déplacement
+                    )
+
+                    # Annuler le déplacement (backtracking)
+                    self.table_de_jeu.plateau[position_depart] = pion
+                    self.table_de_jeu.plateau[position_arrivee] = pion_original
+
+                    # Mettre à jour le meilleur score et le meilleur déplacement
+                    if score > meilleur_score:
+                        meilleur_score = score
+                        meilleur_deplacement = (position_depart, position_arrivee)
+
+        return meilleur_deplacement
 
     def minimax(self, maximiser, profondeur, couleur_ia, couleur_joueur, phase, pions_restants_joueur):
         """
