@@ -70,7 +70,7 @@ class Minimax:
 
         # Si la profondeur maximale est atteinte, évaluer l'état du plateau
         if profondeur >= profondeur_max:
-            return self.evaluation_plateau(couleur_ia, couleur_joueur)
+            return self.evaluation_plateau(couleur_ia, couleur_joueur,phase)
 
         if maximiser:
             # Tour de l'IA (maximiser le score)
@@ -117,7 +117,7 @@ class Minimax:
                         meilleur_score = min(meilleur_score, score)
             return meilleur_score
 
-    def evaluation_plateau(self, couleur_ia, couleur_joueur):
+    def evaluation_plateau(self, couleur_ia, couleur_joueur,phase):
         """
         Évalue l'état actuel du plateau.
         Retourne un score basé sur les positions stratégiques et les alignements partiels.
@@ -125,13 +125,14 @@ class Minimax:
         score = 0
 
         # Ajouter des points pour les positions stratégiques
-        positions_strategiques = [(1, 1)]  # Le centre est stratégique
-        for position in positions_strategiques:
-            if self.table_de_jeu.plateau[position] is not None:
-                if self.table_de_jeu.plateau[position].couleur == couleur_ia:
-                    score += 2  # Bonus pour l'IA
-                elif self.table_de_jeu.plateau[position].couleur == couleur_joueur:
-                    score -= 2  # Malus pour l'utilisateur
+        if phase == "placement":
+            positions_strategiques = [(1, 1)]  # Le centre est stratégique
+            for position in positions_strategiques:
+                if self.table_de_jeu.plateau[position] is not None:
+                    if self.table_de_jeu.plateau[position].couleur == couleur_ia:
+                        score += 2  # Bonus pour l'IA
+                    elif self.table_de_jeu.plateau[position].couleur == couleur_joueur:
+                        score -= 2  # Malus pour l'utilisateur
 
         # Ajouter des points pour les alignements partiels
         lignes_gagnantes = [
