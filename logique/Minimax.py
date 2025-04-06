@@ -5,7 +5,6 @@ class Minimax:
         self.table_de_jeu = table_de_jeu
 
     def meilleur_coup_placement(self, couleur_ia, couleur_joueur):
-        """Trouve le meilleur coup de placement pour l'IA."""
         meilleur_score = float("-inf")
         meilleur_coup = None
         pions_places_joueur = sum(1 for pion in self.table_de_jeu.plateau.values() if pion is not None and pion.couleur == couleur_joueur)
@@ -30,7 +29,6 @@ class Minimax:
         return meilleur_coup
 
     def meilleur_coup_deplacement(self, couleur_ia, couleur_joueur):
-        """Trouve le meilleur coup de déplacement pour l'IA."""
         meilleur_score = float("-inf")
         meilleur_deplacement = None
         for position_depart, pion in self.table_de_jeu.plateau.items():
@@ -60,24 +58,23 @@ class Minimax:
         return meilleur_deplacement
 
     def minimax(self, maximiser, profondeur, couleur_ia, couleur_joueur, phase, pions_places_joueur):
-        """Algorithme Minimax avec gestion des positions bannies."""
         if phase == "placement":
             profondeur_max = 3
             pions_places_ia = sum(1 for pion in self.table_de_jeu.plateau.values() if pion is not None and pion.couleur == couleur_ia)
             pions_places_joueur = sum(1 for pion in self.table_de_jeu.plateau.values() if pion is not None and pion.couleur == couleur_joueur)
             if pions_places_ia >= 3 and pions_places_joueur >= 3:
-                # print("Changement de phase : déplacement. Pions placés IA : ", pions_places_ia, ", Pions placés joueur : ", pions_places_joueur)
                 phase = "deplacement"
-
         else:
             profondeur_max = 3
+        victoire_score = 100 - profondeur * 10  
+        defaite_score = -100 + profondeur * 10  
         if self.table_de_jeu.verifier_victoire(couleur_ia):
-            return 10
+            return victoire_score + self.evaluation_plateau(couleur_ia, couleur_joueur, phase, profondeur)
         if self.table_de_jeu.verifier_victoire(couleur_joueur):
-            return -10
+            return defaite_score + self.evaluation_plateau(couleur_ia, couleur_joueur, phase, profondeur)
         if profondeur >= profondeur_max:
-            # print(f"Profondeur maximale atteinte : {profondeur}, phase : {phase}.")
             return self.evaluation_plateau(couleur_ia, couleur_joueur, phase, profondeur)
+
         if maximiser:
             meilleur_score = float("-inf")
             for position_depart, pion in self.table_de_jeu.plateau.items():
@@ -89,7 +86,7 @@ class Minimax:
                 elif phase == "deplacement" and pion is not None and pion.couleur == couleur_ia:
                     mouvements_legaux = self.table_de_jeu.calculer_mouvements_legaux(position_depart)
                     for position_arrivee in mouvements_legaux:
-                        if position_arrivee in self.table_de_jeu.positions_bannies:  # Ignorer les positions bannies
+                        if position_arrivee in self.table_de_jeu.positions_bannies:
                             continue
                         pion_original = self.table_de_jeu.plateau[position_arrivee]
                         self.table_de_jeu.plateau[position_arrivee] = pion
@@ -110,7 +107,7 @@ class Minimax:
                 elif phase == "deplacement" and pion is not None and pion.couleur == couleur_joueur:
                     mouvements_legaux = self.table_de_jeu.calculer_mouvements_legaux(position_depart)
                     for position_arrivee in mouvements_legaux:
-                        if position_arrivee in self.table_de_jeu.positions_bannies:  
+                        if position_arrivee in self.table_de_jeu.positions_bannies:
                             continue
                         pion_original = self.table_de_jeu.plateau[position_arrivee]
                         self.table_de_jeu.plateau[position_arrivee] = pion
@@ -122,8 +119,6 @@ class Minimax:
             return meilleur_score
 
     def evaluation_plateau(self, couleur_ia, couleur_joueur, phase, profondeur):
-        """Évalue le plateau en fonction des positions et des pions."""
-        # print(f"Évaluation du plateau à la profondeur {profondeur} pour la phase {phase}.")
         score = 0
 
         if phase == "placement":
