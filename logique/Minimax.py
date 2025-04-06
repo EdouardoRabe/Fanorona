@@ -10,7 +10,7 @@ class Minimax:
         meilleur_coup = None
         pions_places_joueur = sum(1 for pion in self.table_de_jeu.plateau.values() if pion is not None and pion.couleur == couleur_joueur)
         for position in self.table_de_jeu.plateau:
-            if self.table_de_jeu.est_position_valide(position):  # Vérifie si la position est valide (non bannie)
+            if self.table_de_jeu.est_position_valide(position):
                 self.table_de_jeu.plateau[position] = Pion(couleur_ia)
                 score = self.minimax(
                     maximiser=False,
@@ -21,12 +21,12 @@ class Minimax:
                     pions_places_joueur=pions_places_joueur
                 )
                 self.table_de_jeu.plateau[position] = None
-                # print(f"Position testée : {position}, Score calculé : {score}")
-                if score > meilleur_score:
+                print(f"Position testée : {position}, Score calculé : {score}")
+                if score > meilleur_score and score != float("-inf") and score != float("inf"):
                     meilleur_score = score
                     meilleur_coup = position
 
-        # print(f"Meilleur coup choisi : {meilleur_coup}, Meilleur score : {meilleur_score}")
+        print(f"Meilleur coup choisi : {meilleur_coup}, Meilleur score : {meilleur_score}")
         return meilleur_coup
 
     def meilleur_coup_deplacement(self, couleur_ia, couleur_joueur):
@@ -52,11 +52,11 @@ class Minimax:
                     )
                     self.table_de_jeu.plateau[position_depart] = pion
                     self.table_de_jeu.plateau[position_arrivee] = pion_original
-                    # print(f"Déplacement testé : {position_depart} -> {position_arrivee}, Score calculé : {score}")
-                    if score > meilleur_score:
+                    print(f"Déplacement testé : {position_depart} -> {position_arrivee}, Score calculé : {score}")
+                    if score > meilleur_score and score != float("-inf") and score != float("inf"):
                         meilleur_score = score
                         meilleur_deplacement = (position_depart, position_arrivee)
-        # print(f"Meilleur déplacement choisi : {meilleur_deplacement}, Meilleur score : {meilleur_score}")
+        print(f"Meilleur déplacement choisi : {meilleur_deplacement}, Meilleur score : {meilleur_score}")
         return meilleur_deplacement
 
     def minimax(self, maximiser, profondeur, couleur_ia, couleur_joueur, phase, pions_places_joueur):

@@ -16,7 +16,7 @@ class TableDeJeu:
             (2, 1): [(2, 0), (1, 1), (2, 2)],
             (2, 2): [(1, 2), (1, 1), (2, 1)],
         }
-        self.positions_bannies = set()  # Liste des positions bannies
+        self.positions_bannies = set() 
 
     def est_position_valide(self, position):
         """Vérifie si une position est valide (non occupée et non bannie)."""
@@ -53,6 +53,7 @@ class TableDeJeu:
         return mouvements
 
     def verifier_victoire(self, couleur):
+        """Vérifie si une couleur a gagné en formant une ligne gagnante."""
         lignes_gagnantes = [
             [(0, 0), (0, 1), (0, 2)],  
             [(1, 0), (1, 1), (1, 2)],
@@ -64,6 +65,9 @@ class TableDeJeu:
             [(0, 2), (1, 1), (2, 0)],  
         ]
         for ligne in lignes_gagnantes:
+            # Ignorer les lignes contenant des positions bannies
+            if any(pos in self.positions_bannies for pos in ligne):
+                continue
             if all(self.plateau[pos] is not None and self.plateau[pos].couleur == couleur for pos in ligne):
                 return True
         return False
