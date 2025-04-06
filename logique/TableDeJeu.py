@@ -16,9 +16,18 @@ class TableDeJeu:
             (2, 1): [(2, 0), (1, 1), (2, 2)],
             (2, 2): [(1, 2), (1, 1), (2, 1)],
         }
+        self.positions_bannies = set()  # Liste des positions bannies
 
     def est_position_valide(self, position):
-        return position in self.plateau and self.plateau[position] is None
+        """Vérifie si une position est valide (non occupée et non bannie)."""
+        return position in self.plateau and self.plateau[position] is None and position not in self.positions_bannies
+
+    def bannir_position(self, position):
+        """Bannit une position si elle est vide et valide."""
+        if position in self.plateau and self.plateau[position] is None:
+            self.positions_bannies.add(position)
+            return True
+        return False
 
     def placer_pion(self, position, pion):
         if self.est_position_valide(position):
