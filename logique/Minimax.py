@@ -72,12 +72,14 @@ class Minimax:
                     # Annuler le déplacement (backtracking)
                     self.table_de_jeu.plateau[position_depart] = pion
                     self.table_de_jeu.plateau[position_arrivee] = pion_original
+                    
+                    print(f"Déplacement testé : {position_depart} -> {position_arrivee}, Score calculé : {score}")
 
                     # Mettre à jour le meilleur score et le meilleur déplacement
                     if score > meilleur_score:
                         meilleur_score = score
                         meilleur_deplacement = (position_depart, position_arrivee)
-
+        print(f"Meilleur déplacement choisi : {meilleur_deplacement}, Meilleur score : {meilleur_score}")
         return meilleur_deplacement
 
     def minimax(self, maximiser, profondeur, couleur_ia, couleur_joueur, phase, pions_restants_joueur):

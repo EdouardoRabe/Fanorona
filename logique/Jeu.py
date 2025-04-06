@@ -26,28 +26,15 @@ class Jeu:
                 self.tour = "ia"
                 return "placement_reussi"
         elif self.phase == "deplacement":
-            if self.position_selectionnee is None:
-                # Sélectionner un pion
-                if self.table_de_jeu.plateau[position_depart] is not None and self.table_de_jeu.plateau[position_depart].couleur == "rouge":
-                    self.position_selectionnee = position_depart
-                    self.pion_selectionne = self.table_de_jeu.plateau[position_depart]
-                    self.table_de_jeu.plateau[position_depart] = None  # Retirer temporairement le pion
-                    return "pion_selectionne"
-            else:
-                # Déplacer le pion sélectionné
-                if self.table_de_jeu.deplacer_pion(self.position_selectionnee, position_arrivee):
-                    self.table_de_jeu.plateau[position_arrivee] = self.pion_selectionne  # Placer le pion
-                    self.pion_selectionne = None  # Réinitialiser le pion temporaire
+            if self.phase == "deplacement":
+                # Valider et exécuter le déplacement
+                if self.table_de_jeu.deplacer_pion(position_depart, position_arrivee):
                     if self.table_de_jeu.verifier_victoire("rouge"):
                         return "victoire_utilisateur"
-                    self.position_selectionnee = None
-                    self.tour = "ia"
+                    self.verifier_phase()  # Vérifier le changement de phase après le placement
+                    self.tour = "ia"  # Passer le tour à l'IA
                     return "deplacement_reussi"
                 else:
-                    # Annuler le déplacement en cas d'échec
-                    self.table_de_jeu.plateau[self.position_selectionnee] = self.pion_selectionne
-                    self.pion_selectionne = None
-                    self.position_selectionnee = None
                     return "deplacement_invalide"
         return "action_invalide"
 

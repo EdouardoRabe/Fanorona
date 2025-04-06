@@ -39,7 +39,7 @@ class TableDeJeu:
                 return True
         return False
 
-    def calculer_mouvements_legaux(self, position, couleur):
+    def calculer_mouvements_legaux(self, position):
         """
         Calcule les mouvements légaux pour un pion à une position donnée.
         Retourne une liste des positions accessibles.

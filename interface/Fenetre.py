@@ -122,10 +122,18 @@ class Fenetre:
                 position_arrivee = self.positions_cercles[cercle_clique]
                 print(f"Position cible : {position_arrivee}")  # Debug
 
-                # Valider le déplacement
-                if self.jeu.table_de_jeu.deplacer_pion(self.position_selectionnee, position_arrivee):
+                # Appeler la logique de jeu pour gérer le déplacement
+                resultat = self.jeu.jouer_tour_utilisateur(position_depart=self.position_selectionnee, position_arrivee=position_arrivee)
+                if resultat == "deplacement_reussi":
                     print("Déplacement validé.")  # Debug
                     self.pions_graphiques[self.cercle_selectionne] = position_arrivee
+                    x1, y1, x2, y2 = self.canvas.coords(cercle_clique)
+                    self.canvas.coords(self.cercle_selectionne, x1 + 5, y1 + 5, x2 - 5, y2 - 5)
+                    self.jouer_tour_ia()  # Passer le tour à l'IA
+                elif resultat == "victoire_utilisateur":
+                    print("L'utilisateur a gagné !")
+                    messagebox.showinfo("Victoire", "Félicitations ! Vous avez gagné !")
+                    self.root.quit()
                 else:
                     print("Déplacement invalide. Retour à la position d'origine.")  # Debug
                     x_orig, y_orig = self.canvas.coords(self.cercle_selectionne)[:2]
@@ -220,10 +228,20 @@ class Fenetre:
                 position_arrivee = self.positions_cercles[cercle_clique]
                 print(f"Position cible : {position_arrivee}")  # Debug
 
-                # Valider le déplacement
-                if self.jeu.table_de_jeu.deplacer_pion(self.position_selectionnee, position_arrivee):
+                # Appeler la logique de jeu pour gérer le déplacement
+                resultat = self.jeu.jouer_tour_utilisateur(position_depart=self.position_selectionnee, position_arrivee=position_arrivee)
+                if resultat == "deplacement_reussi":
                     print("Déplacement validé.")  # Debug
                     self.pions_graphiques[self.cercle_selectionne] = position_arrivee
+                    x1, y1, x2, y2 = self.canvas.coords(cercle_clique)
+                    self.canvas.coords(self.cercle_selectionne, x1 + 5, y1 + 5, x2 - 5, y2 - 5)
+
+                    # Passer au tour de l'IA
+                    self.jouer_tour_ia()
+                elif resultat == "victoire_utilisateur":
+                    print("L'utilisateur a gagné !")
+                    messagebox.showinfo("Victoire", "Félicitations ! Vous avez gagné !")
+                    self.root.quit()
                 else:
                     print("Déplacement invalide. Retour à la position d'origine.")  # Debug
                     x_orig, y_orig = self.canvas.coords(self.cercle_selectionne)[:2]
@@ -241,6 +259,18 @@ class Fenetre:
             print("Tour de l'IA.")  # Debug
             resultat = self.jeu.jouer_tour_ia()
             if resultat == "victoire_ia":
+                if self.jeu.phase == "placement":
+                    position = self.jeu.derniere_position_ia
+                    cercle_clique = [c for c, pos in self.positions_cercles.items() if pos == position][0]
+                    x1, y1, x2, y2 = self.canvas.coords(cercle_clique)
+                    pion = self.canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill="blue")
+                    self.pions_graphiques[pion] = position
+                else:
+                    position_depart, position_arrivee = self.jeu.derniere_position_ia
+                    pion = [p for p, pos in self.pions_graphiques.items() if pos == position_depart][0]
+                    self.pions_graphiques[pion] = position_arrivee
+                    x1, y1, x2, y2 = self.canvas.coords([c for c, pos in self.positions_cercles.items() if pos == position_arrivee][0])
+                    self.canvas.coords(pion, x1 + 5, y1 + 5, x2 - 5, y2 - 5)
                 messagebox.showinfo("Défaite", "L'IA a gagné !")
                 self.root.quit()
             elif resultat == "placement_reussi":
