@@ -7,8 +7,12 @@ class Minimax:
     def meilleur_coup_placement(self, couleur_ia, couleur_joueur):
         meilleur_score = float("-inf")
         meilleur_coup = None
+        pions_places_ia = sum(1 for pion in self.table_de_jeu.plateau.values() if pion is not None and pion.couleur == couleur_ia)
         pions_places_joueur = sum(1 for pion in self.table_de_jeu.plateau.values() if pion is not None and pion.couleur == couleur_joueur)
         for position in self.table_de_jeu.plateau:
+            # if pions_places_ia == 0 and position == (1, 1):
+            #     continue
+            # Mety ilaiko rah esoriko le placement au centre n lay IA
             if self.table_de_jeu.est_position_valide(position):
                 self.table_de_jeu.plateau[position] = Pion(couleur_ia)
                 score = self.minimax(
@@ -65,7 +69,7 @@ class Minimax:
             if pions_places_ia >= 3 and pions_places_joueur >= 3:
                 phase = "deplacement"
         else:
-            profondeur_max = 3
+            profondeur_max = 5
         victoire_score = 100 - profondeur * 10  
         defaite_score = -100 + profondeur * 10  
         if self.table_de_jeu.verifier_victoire(couleur_ia):
