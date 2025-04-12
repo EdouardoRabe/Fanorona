@@ -89,6 +89,7 @@ class Fenetre:
             self.canvas.coords(self.cercle_selectionne, event.x - 10, event.y - 10, event.x + 10, event.y + 10)
             
     def clic_souris(self, event):
+        """Gère le clic gauche pour le placement."""
         if self.jeu.phase == "deplacement":
             print("Phase de déplacement : utilisez le drag-and-drop pour déplacer un pion.")
             return
@@ -97,9 +98,15 @@ class Fenetre:
         if cercle_clique in self.positions_cercles:
             position = self.positions_cercles[cercle_clique]
             print(f"Utilisateur a cliqué sur la position logique : {position}")
+            pions_places_joueur = sum(1 for pion in self.jeu.table_de_jeu.plateau.values() if pion is not None and pion.couleur == "rouge")
+            if self.jeu.phase == "placement" and self.jeu.tour == "utilisateur" and pions_places_joueur == 0 and position == (1, 1):
+                print("Placement invalide : le premier pion ne peut pas être placé au centre.")
+                return
+
             if position in self.jeu.table_de_jeu.positions_bannies:
                 print("Placement invalide : la position est bannie.")
                 return
+
             if self.jeu.phase == "placement":
                 resultat = self.jeu.jouer_tour_utilisateur(position)
                 if resultat == "victoire_utilisateur":
@@ -112,7 +119,6 @@ class Fenetre:
                     self.pions_graphiques[pion] = position
                     self.jeu.verifier_phase()
                     self.jouer_tour_ia()
-
 
     def relacher_pion(self, event):
         """Gère le relâchement du pion après un drag-and-drop."""
