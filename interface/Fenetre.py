@@ -82,21 +82,24 @@ class Fenetre:
     
     def drag_pion(self, event):
         if self.jeu.phase == "placement":
-            print("Phase de placement : utilisez le clic")  
-            return  
+            print("Phase de placement : utilisez le clic")
+            return
         if self.cercle_selectionne is None:
             x, y = event.x, event.y
             pion_clique = self.canvas.find_closest(x, y)[0]
             if pion_clique in self.pions_graphiques:
-                print("Pion sélectionné pour le déplacement.")  
+                position = self.pions_graphiques[pion_clique]
+                pion_plateau = self.jeu.table_de_jeu.plateau.get(position)
+                if pion_plateau is not None and pion_plateau.couleur != "rouge":
+                    print("Vous ne pouvez pas déplacer un pion de l'IA.")
+                    return
+                print("Pion sélectionné pour le déplacement.")
                 self.cercle_selectionne = pion_clique
-                self.position_selectionnee = self.pions_graphiques[pion_clique]
+                self.position_selectionnee = position
         else:
-            # print(f"Déplacement en cours : position souris ({event.x}, {event.y})")  
             self.canvas.coords(self.cercle_selectionne, event.x - 10, event.y - 10, event.x + 10, event.y + 10)
             
     def clic_souris(self, event):
-        """Gère le clic gauche pour le placement."""
         if self.jeu.phase == "deplacement":
             print("Phase de déplacement : utilisez le drag-and-drop pour déplacer un pion.")
             return
@@ -128,7 +131,6 @@ class Fenetre:
                     self.jouer_tour_ia()
 
     def relacher_pion(self, event):
-        """Gère le relâchement du pion après un drag-and-drop."""
         if self.cercle_selectionne:
             print("Relâchement du pion.")
             x, y = event.x, event.y
