@@ -19,6 +19,13 @@ class Fenetre:
         self.canvas.bind("<Button-3>", self.bannir_position)  
         self.canvas.bind("<B1-Motion>", self.drag_pion)
         self.canvas.bind("<ButtonRelease-1>", self.relacher_pion)
+        self.root.bind("<Key>", self.key_press)
+
+    def key_press(self, event):
+        if event.char.lower() == 'x' and self.jeu.phase == "deplacement" and self.jeu.tour == "utilisateur":
+            print("Le joueur a passé son tour. L'IA joue.")
+            self.jeu.tour = "ia"
+            self.jouer_tour_ia()
 
     def bannir_position(self, event):
         x, y = event.x, event.y

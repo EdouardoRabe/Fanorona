@@ -9,10 +9,10 @@ class Minimax:
         meilleur_coup = None
         pions_places_ia = sum(1 for pion in self.table_de_jeu.plateau.values() if pion is not None and pion.couleur == couleur_ia)
         pions_places_joueur = sum(1 for pion in self.table_de_jeu.plateau.values() if pion is not None and pion.couleur == couleur_joueur)
+        bannies_existent = bool(self.table_de_jeu.positions_bannies)
         for position in self.table_de_jeu.plateau:
             # if pions_places_ia == 0 and position == (1, 1):
             #     continue
-            # Mety ilaiko rah esoriko le placement au centre n lay IA
             if self.table_de_jeu.est_position_valide(position):
                 self.table_de_jeu.plateau[position] = Pion(couleur_ia)
                 score = self.minimax(
@@ -25,22 +25,26 @@ class Minimax:
                 )
                 self.table_de_jeu.plateau[position] = None
                 print(f"Position testée : {position}, Score calculé : {score}")
-                if score > meilleur_score and score != float("-inf") and score != float("inf"):
-                # if score > meilleur_score:
-                    meilleur_score = score
-                    meilleur_coup = position
-
+                if bannies_existent:
+                    if score > meilleur_score:
+                        meilleur_score = score
+                        meilleur_coup = position
+                else:
+                    if score > meilleur_score and score != float("-inf") and score != float("inf"):
+                        meilleur_score = score
+                        meilleur_coup = position
         print(f"Meilleur coup choisi : {meilleur_coup}, Meilleur score : {meilleur_score}")
         return meilleur_coup
 
     def meilleur_coup_deplacement(self, couleur_ia, couleur_joueur):
         meilleur_score = float("-inf")
         meilleur_deplacement = None
+        bannies_existent = bool(self.table_de_jeu.positions_bannies)
         for position_depart, pion in self.table_de_jeu.plateau.items():
             if pion is not None and pion.couleur == couleur_ia:
                 mouvements_legaux = self.table_de_jeu.calculer_mouvements_legaux(position_depart)
                 for position_arrivee in mouvements_legaux:
-                    if position_arrivee in self.table_de_jeu.positions_bannies: 
+                    if position_arrivee in self.table_de_jeu.positions_bannies:
                         continue
                     pion_original = self.table_de_jeu.plateau[position_arrivee]
                     self.table_de_jeu.plateau[position_arrivee] = pion
@@ -56,10 +60,14 @@ class Minimax:
                     self.table_de_jeu.plateau[position_depart] = pion
                     self.table_de_jeu.plateau[position_arrivee] = pion_original
                     print(f"Déplacement testé : {position_depart} -> {position_arrivee}, Score calculé : {score}")
-                    if score > meilleur_score and score != float("-inf") and score != float("inf"):
-                    # if score > meilleur_score:
-                        meilleur_score = score
-                        meilleur_deplacement = (position_depart, position_arrivee)
+                    if bannies_existent:
+                        if score > meilleur_score:
+                            meilleur_score = score
+                            meilleur_deplacement = (position_depart, position_arrivee)
+                    else:
+                        if score > meilleur_score and score != float("-inf") and score != float("inf"):
+                            meilleur_score = score
+                            meilleur_deplacement = (position_depart, position_arrivee)
         print(f"Meilleur déplacement choisi : {meilleur_deplacement}, Meilleur score : {meilleur_score}")
         return meilleur_deplacement
 
@@ -71,7 +79,7 @@ class Minimax:
             if pions_places_ia >= 3 and pions_places_joueur >= 3:
                 phase = "deplacement"
         else:
-            profondeur_max = 7
+            profondeur_max = 5
         victoire_score = 100 - profondeur * 10  
         defaite_score = -100 + profondeur * 10  
         if self.table_de_jeu.verifier_victoire(couleur_ia):
