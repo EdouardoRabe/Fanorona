@@ -3,6 +3,9 @@ from tkinter import messagebox
 import math
 
 class Fenetre:
+    USER_COLOR = "#2ecc40"  
+    IA_COLOR = "#e74c3c"   
+
     def __init__(self, jeu):
         self.jeu = jeu
         self.root = tk.Tk()
@@ -90,7 +93,7 @@ class Fenetre:
             if pion_clique in self.pions_graphiques:
                 position = self.pions_graphiques[pion_clique]
                 pion_plateau = self.jeu.table_de_jeu.plateau.get(position)
-                if pion_plateau is not None and pion_plateau.couleur != "rouge":
+                if pion_plateau is not None and pion_plateau.couleur != self.USER_COLOR:
                     print("Vous ne pouvez pas déplacer un pion de l'IA.")
                     return
                 print("Pion sélectionné pour le déplacement.")
@@ -108,7 +111,7 @@ class Fenetre:
         if cercle_clique in self.positions_cercles:
             position = self.positions_cercles[cercle_clique]
             print(f"Utilisateur a cliqué sur la position logique : {position}")
-            pions_places_joueur = sum(1 for pion in self.jeu.table_de_jeu.plateau.values() if pion is not None and pion.couleur == "rouge")
+            pions_places_joueur = sum(1 for pion in self.jeu.table_de_jeu.plateau.values() if pion is not None and pion.couleur == self.USER_COLOR)
             if self.jeu.phase == "placement" and self.jeu.tour == "utilisateur" and pions_places_joueur == 0 and position == (1, 1):
                 print("Placement invalide : le premier pion ne peut pas être placé au centre.")
                 return
@@ -125,7 +128,7 @@ class Fenetre:
                     self.root.quit()
                 elif resultat == "placement_reussi":
                     x1, y1, x2, y2 = self.canvas.coords(cercle_clique)
-                    pion = self.canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill="red")
+                    pion = self.canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill=self.USER_COLOR)
                     self.pions_graphiques[pion] = position
                     self.jeu.verifier_phase()
                     self.jouer_tour_ia()
@@ -178,7 +181,7 @@ class Fenetre:
                     position = self.jeu.derniere_position_ia
                     cercle_clique = [c for c, pos in self.positions_cercles.items() if pos == position][0]
                     x1, y1, x2, y2 = self.canvas.coords(cercle_clique)
-                    pion = self.canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill="blue")
+                    pion = self.canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill=self.IA_COLOR)
                     self.pions_graphiques[pion] = position
                 else:
                     position_depart, position_arrivee = self.jeu.derniere_position_ia
@@ -192,7 +195,7 @@ class Fenetre:
                 position = self.jeu.derniere_position_ia
                 cercle_clique = [c for c, pos in self.positions_cercles.items() if pos == position][0]
                 x1, y1, x2, y2 = self.canvas.coords(cercle_clique)
-                pion = self.canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill="blue")
+                pion = self.canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill=self.IA_COLOR)
                 self.pions_graphiques[pion] = position
             elif resultat == "deplacement_reussi":
                 position_depart, position_arrivee = self.jeu.derniere_position_ia

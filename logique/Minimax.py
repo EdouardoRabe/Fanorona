@@ -25,14 +25,9 @@ class Minimax:
                 )
                 self.table_de_jeu.plateau[position] = None
                 print(f"Position testée : {position}, Score calculé : {score}")
-                if bannies_existent:
-                    if score > meilleur_score:
-                        meilleur_score = score
-                        meilleur_coup = position
-                else:
-                    if score > meilleur_score and score != float("-inf") and score != float("inf"):
-                        meilleur_score = score
-                        meilleur_coup = position
+                if score > meilleur_score and score != float("-inf") and score != float("inf"):
+                    meilleur_score = score
+                    meilleur_coup = position
         print(f"Meilleur coup choisi : {meilleur_coup}, Meilleur score : {meilleur_score}")
         return meilleur_coup
 
@@ -60,14 +55,9 @@ class Minimax:
                     self.table_de_jeu.plateau[position_depart] = pion
                     self.table_de_jeu.plateau[position_arrivee] = pion_original
                     print(f"Déplacement testé : {position_depart} -> {position_arrivee}, Score calculé : {score}")
-                    if bannies_existent:
-                        if score > meilleur_score:
-                            meilleur_score = score
-                            meilleur_deplacement = (position_depart, position_arrivee)
-                    else:
-                        if score > meilleur_score and score != float("-inf") and score != float("inf"):
-                            meilleur_score = score
-                            meilleur_deplacement = (position_depart, position_arrivee)
+                    if score > meilleur_score and score != float("-inf") and score != float("inf"):
+                        meilleur_score = score
+                        meilleur_deplacement = (position_depart, position_arrivee)
         print(f"Meilleur déplacement choisi : {meilleur_deplacement}, Meilleur score : {meilleur_score}")
         return meilleur_deplacement
 
@@ -79,7 +69,7 @@ class Minimax:
             if pions_places_ia >= 3 and pions_places_joueur >= 3:
                 phase = "deplacement"
         else:
-            profondeur_max = 5
+            profondeur_max = 7
         victoire_score = 100 - profondeur * 10  
         defaite_score = -100 + profondeur * 10  
         if self.table_de_jeu.verifier_victoire(couleur_ia):
@@ -91,12 +81,14 @@ class Minimax:
 
         if maximiser:
             meilleur_score = float("-inf")
+            coup_trouve = False
             for position_depart, pion in self.table_de_jeu.plateau.items():
                 if phase == "placement" and self.table_de_jeu.est_position_valide(position_depart):
                     self.table_de_jeu.plateau[position_depart] = Pion(couleur_ia)
                     score = self.minimax(False, profondeur + 1, couleur_ia, couleur_joueur, phase, pions_places_joueur)
                     self.table_de_jeu.plateau[position_depart] = None
                     meilleur_score = max(meilleur_score, score)
+                    coup_trouve = True
                 elif phase == "deplacement" and pion is not None and pion.couleur == couleur_ia:
                     mouvements_legaux = self.table_de_jeu.calculer_mouvements_legaux(position_depart)
                     for position_arrivee in mouvements_legaux:
@@ -109,15 +101,20 @@ class Minimax:
                         self.table_de_jeu.plateau[position_depart] = pion
                         self.table_de_jeu.plateau[position_arrivee] = pion_original
                         meilleur_score = max(meilleur_score, score)
+                        coup_trouve = True
+            if not coup_trouve:
+                return self.evaluation_plateau(couleur_ia, couleur_joueur, phase, profondeur)
             return meilleur_score
         else:
             meilleur_score = float("inf")
+            coup_trouve = False
             for position_depart, pion in self.table_de_jeu.plateau.items():
                 if phase == "placement" and self.table_de_jeu.est_position_valide(position_depart):
                     self.table_de_jeu.plateau[position_depart] = Pion(couleur_joueur)
                     score = self.minimax(True, profondeur + 1, couleur_ia, couleur_joueur, phase, pions_places_joueur)
                     self.table_de_jeu.plateau[position_depart] = None
                     meilleur_score = min(meilleur_score, score)
+                    coup_trouve = True
                 elif phase == "deplacement" and pion is not None and pion.couleur == couleur_joueur:
                     mouvements_legaux = self.table_de_jeu.calculer_mouvements_legaux(position_depart)
                     for position_arrivee in mouvements_legaux:
@@ -130,6 +127,9 @@ class Minimax:
                         self.table_de_jeu.plateau[position_depart] = pion
                         self.table_de_jeu.plateau[position_arrivee] = pion_original
                         meilleur_score = min(meilleur_score, score)
+                        coup_trouve = True
+            if not coup_trouve:
+                return self.evaluation_plateau(couleur_ia, couleur_joueur, phase, profondeur)
             return meilleur_score
 
     def evaluation_plateau(self, couleur_ia, couleur_joueur, phase, profondeur):

@@ -3,11 +3,14 @@ from logique.Pion import Pion
 from logique.Minimax import Minimax
 
 class Jeu:
+    USER_COLOR = "#2ecc40" 
+    IA_COLOR = "#e74c3c"    
+
     def __init__(self):
         self.table_de_jeu = TableDeJeu()
         self.minimax = Minimax(self.table_de_jeu)
-        self.pions_utilisateur = [Pion("rouge") for _ in range(3)]
-        self.pions_ia = [Pion("bleu") for _ in range(3)]
+        self.pions_utilisateur = [Pion(self.USER_COLOR) for _ in range(3)]
+        self.pions_ia = [Pion(self.IA_COLOR) for _ in range(3)]
         self.phase = "placement"  
         self.tour = "utilisateur"  
         self.derniere_position_ia = None  
@@ -19,7 +22,7 @@ class Jeu:
             if self.table_de_jeu.est_position_valide(position_depart):
                 pion = self.pions_utilisateur.pop(0)
                 self.table_de_jeu.placer_pion(position_depart, pion)
-                if self.table_de_jeu.verifier_victoire("rouge"):
+                if self.table_de_jeu.verifier_victoire(self.USER_COLOR):
                     return "victoire_utilisateur"
                 self.verifier_phase()  
                 self.tour = "ia"
@@ -27,7 +30,7 @@ class Jeu:
         elif self.phase == "deplacement":
             if self.phase == "deplacement":
                 if self.table_de_jeu.deplacer_pion(position_depart, position_arrivee):
-                    if self.table_de_jeu.verifier_victoire("rouge"):
+                    if self.table_de_jeu.verifier_victoire(self.USER_COLOR):
                         return "victoire_utilisateur"
                     self.verifier_phase() 
                     self.tour = "ia" 
@@ -38,22 +41,22 @@ class Jeu:
 
     def jouer_tour_ia(self):
         if self.phase == "placement" and self.tour == "ia":
-            position = self.minimax.meilleur_coup_placement("bleu", "rouge")
+            position = self.minimax.meilleur_coup_placement(self.IA_COLOR, self.USER_COLOR)
             self.derniere_position_ia = position
             pion = self.pions_ia.pop(0)
             self.table_de_jeu.placer_pion(position, pion)
-            if self.table_de_jeu.verifier_victoire("bleu"):
+            if self.table_de_jeu.verifier_victoire(self.IA_COLOR):
                 return "victoire_ia"
             self.verifier_phase()  
             self.tour = "utilisateur"
             return "placement_reussi"
         elif self.phase == "deplacement" and self.tour == "ia":
-            deplacement = self.minimax.meilleur_coup_deplacement("bleu", "rouge")
+            deplacement = self.minimax.meilleur_coup_deplacement(self.IA_COLOR, self.USER_COLOR)
             if deplacement:
                 position_depart, position_arrivee = deplacement
                 self.table_de_jeu.deplacer_pion(position_depart, position_arrivee)
                 self.derniere_position_ia = (position_depart, position_arrivee)
-                if self.table_de_jeu.verifier_victoire("bleu"):
+                if self.table_de_jeu.verifier_victoire(self.IA_COLOR):
                     return "victoire_ia"
                 self.tour = "utilisateur"
                 return "deplacement_reussi"
