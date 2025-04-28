@@ -69,7 +69,7 @@ class Minimax:
             if pions_places_ia >= 3 and pions_places_joueur >= 3:
                 phase = "deplacement"
         else:
-            profondeur_max = 7
+            profondeur_max = 5
         victoire_score = 100 - profondeur * 10  
         defaite_score = -100 + profondeur * 10  
         if self.table_de_jeu.verifier_victoire(couleur_ia):
