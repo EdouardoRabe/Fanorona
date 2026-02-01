@@ -11,8 +11,8 @@ class Minimax:
         pions_places_joueur = sum(1 for pion in self.table_de_jeu.plateau.values() if pion is not None and pion.couleur == couleur_joueur)
         bannies_existent = bool(self.table_de_jeu.positions_bannies)
         for position in self.table_de_jeu.plateau:
-            # if pions_places_ia == 0 and position == (1, 1):
-            #     continue
+            if pions_places_ia == 0 and position == (1, 1):
+                continue
             if self.table_de_jeu.est_position_valide(position):
                 self.table_de_jeu.plateau[position] = Pion(couleur_ia)
                 score = self.minimax(
